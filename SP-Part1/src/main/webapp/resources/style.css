@@ -5,10 +5,104 @@ h1 {
 	color: orangered;
 	text-transform: uppercase;
 }
-
-
+.navbar-header {
+	background: #f8f8f8;
+}
+.navbar-brand {
+	color: tomato !important;
+}
+.navbar-brand:hover {
+	color: #000 !important;
+}
+.panel-heading {
+	font-size: 18px;
+	color: tomato !important;
+}
 .panel-footer {
 	background: tomato;
 	color: white;
 	text-align: center;
 }
+.table.table-bordered {
+/* 	text-align: center; */
+	border: 1px solid tomato;
+}
+.table.table-bordered tr, .table.table-bordered td {
+	border: 1px solid tomato !important;
+}
+
+td {
+	vertical-align: middle !important;
+}
+.form-control {
+	outline: none !important;
+	border: none;
+	box-shadow: none;
+}
+.form-control:focus {
+	outline: none !important;
+	box-shadow: none;
+}
+
+.form-control:focus::placeholder {
+	opacity: 0;
+}
+
+.btn:active, .btn:focus {
+	outline:none !important;
+/* 	border: none !important;
+	box-shadow:none !important; */
+}
+
+label.btn.focus {
+	outline: 1px solid #000 !important;
+	color: tomato;
+}
+label.btn.active{
+	background: #204d74;
+}
+div.form-group {
+	margin: 0 !important;
+}
+
+.close {
+	color: red !important;
+}
+
+#passMessage {
+	color: red;
+}
+img.snow {
+	width: 100%;
+	object-fit: cover;
+}
+
+#myNavbar {
+	display: flex;
+	justify-content: space-between;
+}
+.navbar-nav {
+	display: flex;
+	justify-content: space-between;
+}
+
+.person-img {
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	margin: 0 5px;
+	object-fit: cover;
+}
+textarea[readonly] {
+	background: #fff !important;
+}	
+
+
+
+
+
+
+
+
+
+
