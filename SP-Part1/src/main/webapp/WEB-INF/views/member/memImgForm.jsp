@@ -5,7 +5,7 @@
 <c:set var="contextPath" value="${pageContext.request.contextPath}"/>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
 	<title>Bootstrap Example</title>
 	<meta charset="utf-8">
@@ -24,7 +24,7 @@
 			<div class="panel-heading">회원사진 등록</div>
 			<div class="panel-body">
 			
-			<form action="${contextPath}/memImgUpdate.do" method="post" enctype="multipart/form-data">
+			<form action="${contextPath}/memImgUpdate.do?${_csrf.parameterName}=${_csrf.token}" method="post" enctype="multipart/form-data">
 				<input type="hidden" name="memID" value="${mvo.memID }" />
 				<table class="table table-bordered">
 					<tr>

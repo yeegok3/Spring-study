@@ -5,7 +5,7 @@
 <c:set var="contextPath" value="${pageContext.request.contextPath}"/>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
 	<title>Bootstrap Example</title>
 	<meta charset="utf-8">
@@ -25,6 +25,7 @@
 			<div class="panel-body">
 			
 			<form action="${contextPath}/memLogin.do" method="post">
+				<input type="hidden" name="${_csrf.parameterName }" value="${_csrf.token }" />
 				<table class="table table-bordered">
 					<tr>
 						<td>아이디</td>

@@ -140,7 +140,8 @@ public class MemberController {
 		if (result == 1) {
 			reattr.addFlashAttribute("msgType", "성공 메세지");
 			reattr.addFlashAttribute("msg", "회원정보 수정에 완료되었습니다.");
-			session.setAttribute("mvo", m);
+			Member mvo = memberMapper.getMember(m.getMemID());
+			session.setAttribute("mvo", mvo);
 			return "redirect:/";
 		}else {
 			reattr.addFlashAttribute("msgType", "실패 메세지");
@@ -179,8 +180,8 @@ public class MemberController {
 		if (file != null) {
 			//이미지 파일 여부를 체크하고 아니면 삭제
 			String ext = file.getName().substring(file.getName().lastIndexOf(".")+1);
-			ext = ext.toUpperCase();
-			if (ext.equals("PNG") || ext.equals("GIF") || ext.equals("JPG")) {
+			ext = ext.toLowerCase();
+			if (ext.equals("jpg")) {
 				//새로 업로드된 이미지와 DB에 있는 이미지를 교체 하고 삭제해준다.
 				oldProfile = memberMapper.getMember(memID).getMemProfile();
 				File oldFile = new File(savePath+"/"+oldProfile);
@@ -194,7 +195,7 @@ public class MemberController {
 					file.delete();
 				}
 				reAttr.addFlashAttribute("msgType", "실패 메세지");
-				reAttr.addFlashAttribute("msg", "이미지 파일만 업로드 하세요.");
+				reAttr.addFlashAttribute("msg", "JPG 파일만 업로드 하세요.");
 				return "redirect:/memImgForm.do";
 			}
 			

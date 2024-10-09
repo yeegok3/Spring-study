@@ -2,6 +2,8 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+
+<c:set var="contextPath" value="${pageContext.request.contextPath }"/>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -11,7 +13,7 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 <script	src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="${pageContext.request.contextPath}/resources/style.css" />
+<link rel="stylesheet" href="${contextPath}/resources/style.css" />
 </head>
 
 <body>
@@ -23,6 +25,8 @@
 			<div class="panel-body" id="view">게시판 리스트</div>
 			<div class="panel-body" id="wform" style="display: none">
 				<form id="frm">
+				<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+				
 					<input type="hidden" id="memID" name="memID" value="${mvo.memID }" />
 					<table class="table table-bordered">
 						<tr>
@@ -38,12 +42,11 @@
 						<tr>
 							<td>작성자</td>
 							<td><input class="form-control" type="text" id="writer"
-								name="writer" value="${mvo.memName }" realonly /></td>
+								name="writer" value="${mvo.memName }" readonly /></td>
 						</tr>
 						<tr>
 							<td colspan="2">
-								<button type="button" class="btn btn-primary btn-sm"
-									onclick="goInsert()">등록</button>
+								<button type="button" class="btn btn-primary btn-sm" onclick="goInsert()">등록</button>
 								<button type="reset" class="btn btn-warning btn-sm" id="fclear">취소</button>
 								<button type="button" class="btn btn-info btn-sm"
 									onclick="goList()">목록</button>
@@ -60,6 +63,8 @@
 
 
 	<script type="text/javascript">
+	var csrfHeaderName = "${_csrf.headerName}";
+	var csrfToken = "${_csrf.token}";
 
 	loadList();
 
@@ -145,9 +150,7 @@
  		let writer = $("#writer").val();
  		if(title === ""){
  			alert("제목을 입력해야 합니다.");
- 		}else if(writer === ""){
- 			alert("작성자를 입력하세요.");
- 		}else{
+ 		}else {
  	
  			let fData = {
  					memID: memID,
@@ -160,6 +163,9 @@
 				url: "board/new",
 				type: "post",
 				data: fData,
+				beforeSend: function(xhr){
+					xhr.setRequestHeader(csrfHeaderName, csrfToken);
+				},
 				success: loadList,
 				error: () => {alert("insert error");}
 			});
@@ -175,6 +181,7 @@
 				url: "board/count/"+idx,
 				type: "put",
 				dataType: "json",
+				beforeSend: xhr => xhr.setRequestHeader(csrfHeaderName, csrfToken),
 				success: data => {
 					$("#cnt"+idx).text(data.count);
 				},
@@ -203,6 +210,7 @@
 		$.ajax({
 			url: "board/"+idx,
 			type: "delete",
+			beforeSend: xhr => xhr.setRequestHeader(csrfHeaderName, csrfToken),
 			success: loadList,
 			error: () => alert("delete error!!")
 		});
@@ -232,6 +240,7 @@
 			type: "put",
 			contentType: "application/json;charset=utf-8",
 			data: JSON.stringify({"idx":idx, "title": title, "content": content}),
+			beforeSend: xhr => xhr.setRequestHeader(csrfHeaderName, csrfToken),
 			success: loadList,
 			error: () => alert("update error!!")
 		});

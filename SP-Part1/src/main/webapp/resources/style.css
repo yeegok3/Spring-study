@@ -96,7 +96,9 @@ img.snow {
 textarea[readonly] {
 	background: #fff !important;
 }	
-
+input[readonly] {
+	background: #fff !important;
+}
 
 
 

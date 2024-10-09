@@ -10,4 +10,7 @@ create table mem_table(
 	primary key(memIdx)
 );
 
+delete from mem_table;
+
+
 select * from mem_table;
