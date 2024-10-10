@@ -23,13 +23,7 @@ h1 {
 	color: white;
 	text-align: center;
 }
-.table.table-bordered {
-/* 	text-align: center; */
-	border: 1px solid tomato;
-}
-.table.table-bordered tr, .table.table-bordered td {
-	border: 1px solid tomato !important;
-}
+
 
 td {
 	vertical-align: middle !important;
@@ -100,9 +94,18 @@ input[readonly] {
 	background: #fff !important;
 }
 
+input[type=checkbox] {
+	margin-left: 13px;
+	vertical-align: -1px;
+}
+th {
+	text-align: center;
+	vertical-align: middle !important;
+}
 
-
-
+label {
+	margin-bottom: 0;
+}
 
 
 

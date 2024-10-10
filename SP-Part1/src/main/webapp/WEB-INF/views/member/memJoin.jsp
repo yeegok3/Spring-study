@@ -29,30 +29,30 @@
 			<div class="panel-body">
 			<form name="frm" action="${contextPath}/memRegister.do" method="post">
 				<input type="hidden" name="${_csrf.parameterName }" value="${_csrf.token }" />
-				<table class="table table-bordered">
+				<table class="table table-bordered" id="reg">
 					<tr>
-						<td>아이디</td>
+						<th>아이디</td>
 						<td><input id="memID" name="memID" type="text" class="form-control" maxlength="20" placeholder="아이디를 입력하세요."/></td>
 						<td><button type="button" class="btn btn-primary" onclick="registerCheck()">중복확인</button></td>
 					</tr>
 					<tr>
-						<td>비밀번호</td>
+						<th>비밀번호</td>
 						<td colspan="2"><input id="memPassword" name="memPassword" type="password" onkeyup="passwordCheck()" class="form-control" maxlength="20" placeholder="비밀번호를 입력하세요."/></td>
 					</tr>
 					<tr>
-						<td>비밀번호확인</td>
+						<th>비밀번호확인</td>
 						<td colspan="2"><input id="memPassword2" name="memPassword2" onkeyup="passwordCheck()" type="password" class="form-control" maxlength="20" placeholder="비밀번호를 확인하세요."/></td>
 					</tr>
 					<tr>
-						<td>사용자 이름</td>
+						<th>사용자 이름</td>
 						<td colspan="2"><input id="memName" name="memName" type="text" class="form-control" maxlength="20" placeholder="이름을 입력하세요." /></td>
 					</tr>
 					<tr>
-						<td>나이</td>
+						<th>나이</td>
 						<td colspan="2"><input id="memAge" name="memAge" type="number" class="form-control" maxlength="20" placeholder="10 ~ 100 사이의 나이만 입력가능합니다." /></td>
 					</tr>
 					<tr>
-						<td>성별</td>
+						<th>성별</td>
 						<td colspan="2">
 							<div class="form-group">
 								<div class="btn-group" data-toggle="buttons">
@@ -67,8 +67,20 @@
 						</td>
 					</tr>
 					<tr>
-						<td>이메일</td>
+						<th>이메일</td>
 						<td colspan="2"><input id="memEmail" name="memEmail" type="text" class="form-control" placeholder="이메일을 입력해 주세요."/></td>
+					</tr>
+					<!-- 권한체크 박스 -->
+					<tr>
+						<th>사용자 권한</td>
+						<td colspan="2">
+							<input type="checkbox" id="auth0" name="authList[0].auth" value="ROLE_USER" checked/>
+							<label for="auth0">일반유저</label>
+							<input type="checkbox" id="auth1" name="authList[1].auth" value="ROLE_MANAGER"/>
+							<label for="auth1">매니저</label>
+							<input type="checkbox" id="auth2" name="authList[2].auth" value="ROLE_ADMIN"/>
+							<label for="auth2">관리자</label>
+						</td>
 					</tr>
 					<tr>
 						<td colspan="3">

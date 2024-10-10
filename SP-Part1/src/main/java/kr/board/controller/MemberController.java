@@ -1,11 +1,13 @@
 package kr.board.controller;
 
 import java.io.File;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.oreilly.servlet.MultipartRequest;
 import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
 
+import kr.board.entity.Auth;
 import kr.board.entity.Member;
 import kr.board.mapper.MemberMapper;
 
@@ -23,6 +26,9 @@ public class MemberController {
 	
 	@Autowired
 	MemberMapper memberMapper;
+	
+	@Autowired
+	PasswordEncoder pwEncoder;
 	
 	@RequestMapping("/memJoin.do")
 	public String memJoin() {
@@ -47,6 +53,7 @@ public class MemberController {
 				memPassword2 == null || memPassword2.trim().equals("") ||
 				m.getMemName() == null || m.getMemName().trim().equals("") ||
 				m.getMemAge() <= 10 || m.getMemAge() >= 100 ||
+				m.getAuthList().size() == 0||
 				m.getMemGender() == null || m.getMemGender().trim().equals("") ||
 				m.getMemEmail() == null || m.getMemEmail().trim().equals("")) {
 			reattr.addFlashAttribute("msgType", "실패 메세지");
@@ -59,11 +66,26 @@ public class MemberController {
 			return "redirect:/memJoin.do";
 		}
 		m.setMemProfile("");
+//		비밀번호 보안설정
+		String encryptPw = pwEncoder.encode(m.getMemPassword());
+		m.setMemPassword(encryptPw);
 		int result = memberMapper.register(m);
 		if (result == 1) {
+//			권한 테이블에 회원 권한추가
+			List<Auth> list = m.getAuthList();
+			for (Auth authVO : list) {
+				if (authVO.getAuth() != null) {
+					Auth saveVO = new Auth();
+					saveVO.setMemID(m.getMemID());
+					saveVO.setAuth(authVO.getAuth());
+					memberMapper.authInsert(saveVO);
+				}
+			}
 			reattr.addFlashAttribute("msgType", "성공 메세지");
 			reattr.addFlashAttribute("msg", "회원가입에 성공했습니다.");
-			session.setAttribute("mvo", m);
+//			getMember() -> 회원정보 + 권한정보를 가져와야함.
+			Member mvo = memberMapper.getMember(m.getMemID());
+			session.setAttribute("mvo", mvo);
 			return "redirect:/";
 		}else {
 			reattr.addFlashAttribute("msgType", "실패 메세지");
@@ -96,7 +118,7 @@ public class MemberController {
 			return "redirect:/memLoginForm.do";
 		}
 		Member mvo = memberMapper.memLogin(m);
-		if (mvo != null) {
+		if (mvo != null && pwEncoder.matches(m.getMemPassword(), mvo.getMemPassword())) {
 			reAttr.addFlashAttribute("msgType", "성공 메세지");
 			reAttr.addFlashAttribute("msg", "로그인에 성공했습니다.");
 			session.setAttribute("mvo", mvo);
@@ -124,6 +146,7 @@ public class MemberController {
 				memPassword2 == null || memPassword2.trim().equals("") ||
 				m.getMemName() == null || m.getMemName().trim().equals("") ||
 				m.getMemAge() <= 10 || m.getMemAge() >= 100 ||
+				m.getAuthList().size() == 0 ||
 				m.getMemGender() == null || m.getMemGender().trim().equals("") ||
 				m.getMemEmail() == null || m.getMemEmail().trim().equals("")) {
 			reattr.addFlashAttribute("msgType", "실패 메세지");
@@ -136,8 +159,24 @@ public class MemberController {
 			return "redirect:/memUpdateForm.do";
 		}
 		m.setMemProfile("");
+//		비밀번호 암호화 추가
+		String encryptPw = pwEncoder.encode(m.getMemPassword());
+		m.setMemPassword(encryptPw);
 		int result = memberMapper.memUpdate(m);
 		if (result == 1) {
+//			기존권한을 삭제하고
+			memberMapper.authDelete(m.getMemID());
+//			새로운 권한 추가
+			List<Auth> list = m.getAuthList();
+			for (Auth authVO : list) {
+				if (authVO.getAuth() != null) {
+					Auth saveVO = new Auth();
+					saveVO.setMemID(m.getMemID());
+					saveVO.setAuth(authVO.getAuth());
+					memberMapper.authInsert(saveVO);
+				}
+			}
+			
 			reattr.addFlashAttribute("msgType", "성공 메세지");
 			reattr.addFlashAttribute("msg", "회원정보 수정에 완료되었습니다.");
 			Member mvo = memberMapper.getMember(m.getMemID());

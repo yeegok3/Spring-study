@@ -32,10 +32,24 @@
 		        	<li><a href="${contextPath}/memLogout.do"><span class="glyphicon glyphicon-log-out"></span> 로그아웃</a></li>
 	  				<c:if test="${!empty mvo}">
 						<c:if test="${empty mvo.memProfile}">
-							<li><img class="person-img" src="${contextPath }/resources/images/person.png" />${mvo.memName}님</li>
+							<li><img class="person-img" src="${contextPath }/resources/images/person.png" />${mvo.memName}
+							(
+								<c:forEach var="authVO" items="${mvo.authList }">
+									<c:if test="${authVO.auth eq 'ROLE_USER' }">U</c:if>
+									<c:if test="${authVO.auth eq 'ROLE_MANAGER' }">M</c:if>
+									<c:if test="${authVO.auth eq 'ROLE_ADMIN' }">A</c:if>
+								</c:forEach>
+							)</li>
 						</c:if>
 						<c:if test="${!empty mvo.memProfile}">
-							<li><img class="person-img" src="${contextPath }/resources/upload/${mvo.memProfile}" />${mvo.memName}님</li>
+							<li><img class="person-img" src="${contextPath }/resources/upload/${mvo.memProfile}" />${mvo.memName}
+							(
+								<c:forEach var="authVO" items="${mvo.authList }">
+									<c:if test="${authVO.auth eq 'ROLE_USER' }">U</c:if>
+									<c:if test="${authVO.auth eq 'ROLE_MANAGER' }">M</c:if>
+									<c:if test="${authVO.auth eq 'ROLE_ADMIN' }">A</c:if>
+								</c:forEach>
+							)</li>
 						</c:if>
 					
 						<hr>

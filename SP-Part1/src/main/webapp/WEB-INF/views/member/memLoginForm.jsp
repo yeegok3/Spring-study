@@ -28,11 +28,11 @@
 				<input type="hidden" name="${_csrf.parameterName }" value="${_csrf.token }" />
 				<table class="table table-bordered">
 					<tr>
-						<td>아이디</td>
+						<th>아이디</td>
 						<td><input id="memID" name="memID" type="text" class="form-control" maxlength="20" placeholder="아이디를 입력하세요."/></td>
 					</tr>
 					<tr>
-						<td>비밀번호</td>
+						<th>비밀번호</td>
 						<td colspan="2"><input id="memPassword" name="memPassword" type="password" class="form-control" maxlength="20" placeholder="비밀번호를 입력하세요."/></td>
 					</tr>
 					
