@@ -1,14 +1,20 @@
 package kr.board.controller;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -19,13 +25,18 @@ import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
 
 import kr.board.entity.Auth;
 import kr.board.entity.Member;
+import kr.board.entity.MemberUser;
 import kr.board.mapper.MemberMapper;
+import kr.board.security.MemberUserDetailsService;
 
 @Controller
 public class MemberController {
 	
 	@Autowired
 	MemberMapper memberMapper;
+	
+	@Autowired
+	MemberUserDetailsService memberUserDetailsService;
 	
 	@Autowired
 	PasswordEncoder pwEncoder;
@@ -83,10 +94,8 @@ public class MemberController {
 			}
 			reattr.addFlashAttribute("msgType", "성공 메세지");
 			reattr.addFlashAttribute("msg", "회원가입에 성공했습니다.");
-//			getMember() -> 회원정보 + 권한정보를 가져와야함.
-			Member mvo = memberMapper.getMember(m.getMemID());
-			session.setAttribute("mvo", mvo);
-			return "redirect:/";
+
+			return "redirect:/memLoginForm.do";
 		}else {
 			reattr.addFlashAttribute("msgType", "실패 메세지");
 			reattr.addFlashAttribute("msg", "이미 가입된 회원입니다.");
@@ -95,11 +104,11 @@ public class MemberController {
 		
 	}
 	
-	@RequestMapping("/memLogout.do")
+/*	@RequestMapping("/memLogout.do")
 	public String memLogout(HttpSession session) {
 		session.invalidate();
 		return "redirect:/";
-	}
+	}*/
 	
 //	로그인폼 이동
 	@RequestMapping("/memLoginForm.do")
@@ -108,7 +117,7 @@ public class MemberController {
 	}
 	
 //	로그인 기능 구현
-	@RequestMapping("/memLogin.do")
+/*	@RequestMapping("/memLogin.do")
 	public String memLogin(Member m, RedirectAttributes reAttr, HttpSession session) {
 		if (m.getMemID() == null || m.getMemID().trim().equals("") ||
 				m.getMemPassword() == null || m.getMemPassword().trim().equals("")) {
@@ -117,7 +126,7 @@ public class MemberController {
 			
 			return "redirect:/memLoginForm.do";
 		}
-		Member mvo = memberMapper.memLogin(m);
+		Member mvo = memberMapper.memLogin(m.getMemID());
 		if (mvo != null && pwEncoder.matches(m.getMemPassword(), mvo.getMemPassword())) {
 			reAttr.addFlashAttribute("msgType", "성공 메세지");
 			reAttr.addFlashAttribute("msg", "로그인에 성공했습니다.");
@@ -129,7 +138,7 @@ public class MemberController {
 			return "redirect:/memLoginForm.do";
 		}
 		
-	}
+	}*/
 	
 //	회원정보 수정화면가기
 	@RequestMapping("/memUpdateForm.do")
@@ -158,7 +167,7 @@ public class MemberController {
 			reattr.addFlashAttribute("msg", "비밀번호가 일치하지 않습니다.");
 			return "redirect:/memUpdateForm.do";
 		}
-		m.setMemProfile("");
+
 //		비밀번호 암호화 추가
 		String encryptPw = pwEncoder.encode(m.getMemPassword());
 		m.setMemPassword(encryptPw);
@@ -179,8 +188,12 @@ public class MemberController {
 			
 			reattr.addFlashAttribute("msgType", "성공 메세지");
 			reattr.addFlashAttribute("msg", "회원정보 수정에 완료되었습니다.");
-			Member mvo = memberMapper.getMember(m.getMemID());
-			session.setAttribute("mvo", mvo);
+			
+			// 회원수정이 성공하면=>로그인처리하기
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			MemberUser userAccount = (MemberUser) authentication.getPrincipal();
+			SecurityContextHolder.getContext().setAuthentication(createNewAuthentication(authentication,userAccount.getMember().getMemID()));
+			
 			return "redirect:/";
 		}else {
 			reattr.addFlashAttribute("msgType", "실패 메세지");
@@ -197,10 +210,10 @@ public class MemberController {
 	
 //	회원사진 이미지 업로드 구현
 	@RequestMapping("/memImgUpdate.do")
-	public String memImgUpdate(HttpServletRequest request, RedirectAttributes reAttr, HttpSession session) {
+	public String memImgUpdate(HttpServletRequest request,  HttpSession session, RedirectAttributes reAttr) throws IOException {
 //		파일업로드 API(cos.jar)
 		MultipartRequest multi = null;
-		int fileMaxSize = 10*1024*1024; //10MB
+		int fileMaxSize = 40*1024*1024; //10MB
 		String savePath = request.getRealPath("resources/upload");
 		try {
 //			이미지 업로드
@@ -226,7 +239,7 @@ public class MemberController {
 				File oldFile = new File(savePath+"/"+oldProfile);
 		
 				if (oldFile.exists()) {
-					file.delete();
+					oldFile.delete();
 				}
 				newProfile = file.getName();
 			}else {
@@ -244,16 +257,35 @@ public class MemberController {
 		mvo.setMemID(memID);
 		mvo.setMemProfile(newProfile);
 		memberMapper.memProfileUpdate(mvo);
-		Member m = memberMapper.getMember(memID);
 		
-		//세션을 다시 수정해 준다.
-		session.setAttribute("mvo", m);
+		// 스프링보안(새로운 인증 세션을 생성->객체바인딩)
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		MemberUser userAccount = (MemberUser) authentication.getPrincipal();
+		SecurityContextHolder.getContext().setAuthentication(createNewAuthentication(authentication,userAccount.getMember().getMemID()));
+		
+
 		
 		reAttr.addFlashAttribute("msgType", "성공 메세지");
 		reAttr.addFlashAttribute("msg", "이미지 파일 업데이트 완료!.");
 		
 		return "redirect:/";
 	}
+	
+	 // 스프링 보안(새로운 세션 생성 메서드)
+	 // UsernamePasswordAuthenticationToken -> 회원정보+권한정보
+	 protected Authentication createNewAuthentication(Authentication currentAuth, String username) {
+		    UserDetails newPrincipal = memberUserDetailsService.loadUserByUsername(username);
+		    UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(newPrincipal, currentAuth.getCredentials(), newPrincipal.getAuthorities());
+		    newAuth.setDetails(currentAuth.getDetails());	    
+		    return newAuth;
+	 }
+
+	@GetMapping("/accessDenied")
+	public String showAccessDenied() {
+		return "accessDenied";
+	}
+	
+	
 	
 }
 

@@ -3,6 +3,8 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <c:set var="contextPath" value="${pageContext.request.contextPath}"/>
+<c:set var="mvo" value="${SPRING_SECURITY_CONTEXT.authentication.principal}"/> 
+<c:set var="auth" value="${SPRING_SECURITY_CONTEXT.authentication.authorities}"/>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -25,11 +27,11 @@
 			<div class="panel-body">
 			
 			<form action="${contextPath}/memImgUpdate.do?${_csrf.parameterName}=${_csrf.token}" method="post" enctype="multipart/form-data">
-				<input type="hidden" name="memID" value="${mvo.memID }" />
+				<input type="hidden" name="memID" value="${mvo.member.memID }" />
 				<table class="table table-bordered">
 					<tr>
 						<td>아이디</td>
-						<td>${mvo.memID }</td>
+						<td>${mvo.member.memID }</td>
 					</tr>
 					<tr>
 						<td>사진업로드</td>

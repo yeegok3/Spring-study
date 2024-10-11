@@ -29,9 +29,9 @@
 		values((select IFNULL(MAX(memIdx)+1,1) from security_member member_index), #{memID}, #{memPassword}, #{memName}, #{memAge}, #{memGender}, #{memEmail}, #{memProfile})
 	</insert>
 	
-	<select id="memLogin" parameterType="kr.board.entity.Member" resultMap="memberMap">
+	<select id="memLogin" resultMap="memberMap">
 		select * from security_member security left outer join auth_member auth on 
-		security.memID = auth.memID where security.memID=#{memID}
+		security.memID = auth.memID where security.memID=#{username}
 	</select>
 	
 	<update id="memUpdate" parameterType="kr.board.entity.Member">

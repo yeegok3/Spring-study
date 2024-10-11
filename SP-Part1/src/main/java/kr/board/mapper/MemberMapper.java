@@ -13,7 +13,7 @@ public interface MemberMapper {
 	
 	public int register(Member mvo);
 	
-	public Member memLogin(Member mvo);
+	public Member memLogin(String username);
 	
 	public int memUpdate(Member mvo);
 	

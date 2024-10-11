@@ -87,6 +87,9 @@ img.snow {
 	margin: 0 5px;
 	object-fit: cover;
 }
+.userName {
+	line-height: 40px;
+}
 textarea[readonly] {
 	background: #fff !important;
 }	
@@ -106,8 +109,9 @@ th {
 label {
 	margin-bottom: 0;
 }
-
-
+.modal-body, .modal-footer {
+	background: #fff;
+}
 
 
 
